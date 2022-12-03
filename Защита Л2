@@ -1,0 +1,28 @@
+import requests
+import telebot
+from telebot import types
+bot = telebot.TeleBot("5958129425:AAFQFEFkfrz9T-t0N9_QW5YvJ4L3v-MAR3U")
+
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    keyboard = types.ReplyKeyboardMarkup()
+    keyboard.row("Хочу", "/help")
+    bot.send_message(message.chat.id, 'Привет! Хочешь узнать погоду в Москве на неделю?', reply_markup=keyboard)
+@bot.message_handler(commands=['help'])
+def start_message(message):
+    bot.send_message(message.chat.id, 'Я умею...')
+@bot.message_handler(content_types=['text'])
+def answer(message):
+    if message.text.lower() == "хочу":
+        s_city = "Moscow,RU"
+        appid = "9de86bc6e38880025d88e21c3dbe3d06"
+        res = requests.get("http://api.openweathermap.org/data/2.5/weather",params={'q': s_city, 'units': 'metric', 'lang': 'ru', 'APPID': appid})
+        data = res.json()
+        bot.send_message(message.chat.id,f"Город: {s_city}\nПогодные условия: {data['weather'][0]['description']}\nТемпература: {data['main']['temp']}\nМинимальная температура: {data['main']['temp_min']}\nМаксимальная температура {data['main']['temp_max']}\nСкорость ветра {data['wind']['speed']}\nВидимость {data['visibility']}\nПрогноз погоды на неделю:")
+        res = requests.get("http://api.openweathermap.org/data/2.5/forecast",params={'q': s_city, 'units': 'metric', 'lang': 'ru', 'APPID': appid})
+        data = res.json()
+        for i in data['list']:
+            bot.send_message(message.chat.id,f"Дата < {i['dt_txt']} > \r\nТемпература< {'{0:+3.0f}'.format(i['main']['temp'])}> \r\nПогодныеусловия < {i['weather'][0]['description']} >\r\nСкорость ветра <{i['wind']['speed']} >\r\nВидимость < {i['visibility']} >")
+        bot.send_message(message.chat.id,"Спасибо, что воспользовались моей услугой, морозного вам дня❄")
+bot.polling(none_stop=True)
