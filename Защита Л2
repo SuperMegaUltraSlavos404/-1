@@ -11,7 +11,7 @@ def start(message):
     bot.send_message(message.chat.id, 'Привет! Хочешь узнать погоду в Москве на неделю?', reply_markup=keyboard)
 @bot.message_handler(commands=['help'])
 def start_message(message):
-    bot.send_message(message.chat.id, 'Я умею...')
+    bot.send_message(message.chat.id, 'Я умею определять климат города и погоду в нем на ближайшие 5 дней')
 @bot.message_handler(content_types=['text'])
 def answer(message):
     if message.text.lower() == "хочу":
