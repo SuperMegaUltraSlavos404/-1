@@ -1,0 +1,54 @@
+CREATE DATABASE mtuci_db;
+
+CREATE TABLE kafedra
+(
+	id serial PRIMARY KEY,
+	Кафедра varchar(30) NOT NULL, 
+	Деканат varchar(30) NOT NULL
+);
+CREATE TABLE student_group 
+(
+	id serial PRIMARY KEY,
+	Группа varchar(30) NOT NULL,
+	Кафедра varchar(30) NOT NULL,
+	kaf_key int REFERENCES kafedra(id)
+);
+CREATE TABLE student 
+(
+	id serial PRIMARY KEY,
+	Имя varchar NOT NULL,
+	Паспорт varchar (30) NOT NULL, 
+	Группа  varchar (30) NOT NULL,
+	group_key int REFERENCES student_group(id)
+);
+
+INSERT INTO kafedra (Кафедра, Деканат)VALUES('СиСС','Деканат');
+INSERT INTO kafedra (Кафедра, Деканат)VALUES('Рит','Деканат');
+
+INSERT INTO student_group (Группа,Кафедра,kaf_key)VALUES('БИН2201','СиСС',1);
+INSERT INTO student_group (Группа,Кафедра,kaf_key)VALUES('БИН2202','СиСС',1);
+INSERT INTO student_group (Группа,Кафедра,kaf_key)VALUES('БИК2201','Рит',2);
+INSERT INTO student_group (Группа,Кафедра,kaf_key)VALUES('БИК2202','Рит',2);
+
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Станислав','РФ','БИН2201',1);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Николай','РФ','БИН2201',1);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Дария','РФ','БИН2201',1);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Анастасия','РФ','БИН2201',1);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Петр','РФ','БИН2201',1);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Святослав','РФ','БИН2202',2);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Екатерина','РФ','БИН2202',2);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Константин','РФ','БИН2202',2);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Елена','РФ','БИН2202',2);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Игорь','РФ','БИН2202',2);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Томара','РФ','БИК2201',3);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Алексей','РФ','БИК2201',3);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Наталья','РФ','БИК2201',3);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Павел','РФ','БИК2201',3);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Ирина','РФ','БИК2201',3);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Валентина','РФ','БИК2202',4);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Иван','РФ','БИК2202',4);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Василий','РФ','БИК2202',4);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Зинаида','РФ','БИК2202',4);
+INSERT INTO student (Имя, Паспорт,Группа,group_key)VALUES('Вячеслав','РФ','БИК2202',4);
+
+select kafedra.Кафедра,kafedra.Деканат, student_group.Группа, student.Имя, student.Паспорт from kafedra, student_group,student where kafedra.id=student_group.kaf_key and student_group.id=student.group_key; 
