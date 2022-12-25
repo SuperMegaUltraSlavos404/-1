@@ -40,6 +40,8 @@ class Calculator(QWidget):
         self.hbox_irst.addWidget(self.b_plus)
         self.b_minus = QPushButton("-", self)
         self.hbox_irst.addWidget(self.b_minus)
+        self.b_C = QPushButton("C", self)
+        self.hbox_irst.addWidget(self.b_C)
         self.b_multiplication = QPushButton("*", self)
         self.hbox_irst.addWidget(self.b_multiplication)
         self.b_divide = QPushButton("/", self)
@@ -50,6 +52,7 @@ class Calculator(QWidget):
         self.b_minus.clicked.connect(lambda: self._operation("-"))
         self.b_multiplication.clicked.connect(lambda: self._operation("*"))
         self.b_divide.clicked.connect(lambda: self._operation("/"))
+        self.b_C.clicked.connect(lambda: self._operation("C"))
         self.b_result.clicked.connect(self._result)
         self.b_point.clicked.connect(lambda: self._button("."))
         self.b_0.clicked.connect(lambda: self._button("0"))
@@ -69,12 +72,22 @@ class Calculator(QWidget):
         self.input.setText(line + param)
 
     def _operation(self, op):
-        self.num_1 = int(self.input.text())
+        n1=self.input.text().split('.')
+        if len(n1) == 2:
+            self.num_1= int(n1[0]) + (int(n1[1]) / 10 ** len(n1[1]))
+        if len(n1) == 1:
+            self.num_1= int(n1[0])
         self.op = op
         self.input.setText("")
+        if self.op == "C":
+            self.input.setText(str(self.num_1)[:-1])
 
     def _result(self):
-        self.num_2 = int(self.input.text())
+        n2=self.input.text().split('.')
+        if len(n2) == 2:
+            self.num_2 = int(n2[0]) + (int(n2[1]) / 10 ** len(n2[1]))
+        if len(n2) == 1:
+            self.num_2 = int(n2[0])
         if self.op == "+":
             self.input.setText(str(self.num_1 + self.num_2))
         if self.op == "-":
