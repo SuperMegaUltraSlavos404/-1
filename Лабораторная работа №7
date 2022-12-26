@@ -1,0 +1,89 @@
+import telebot
+from telebot import types
+import requests
+from flask import Flask, render_template, request, redirect
+import psycopg2
+import datetime
+
+
+token ="5954942593:AAEkMZxeNioeT5EpbkiZsLraNZ6chTFGTAk"
+
+bot = telebot.TeleBot(token)
+
+conn = psycopg2.connect(database="mtuci_db",
+                        user="postgres",
+                        password="slava2004",
+                        host="localhost",
+                        port="5432")
+cursor = conn.cursor()
+dt_now = datetime.datetime.now()
+ned = str(dt_now)[:str(dt_now).index(' ')].split('-')
+chet_ned = datetime.date(int(ned[0]), int(ned[1]), int(ned[2])).isocalendar().week
+
+def dn_ned(chet_ned2, mes):
+    if chet_ned2 % 2 == 0:
+        chet2 = 'Четная'
+    else:
+        chet2 = 'Нечетная'
+    cursor.execute("SELECT * FROM Расписание WHERE НЕДЕЛЯ=%s AND День_недели=%s", (chet2, mes))
+    records = list(cursor.fetchall())
+    otv = ''
+    for i in range(len(records)):
+        if i % 5 == 0:
+            otv += f'{records[i//5][2]}\n'
+        otv += f'{i + 1}. {records[i][3:]}\n'
+    return f'{records[0][1]} неделя №{chet_ned} \n{otv}'
+
+def na_ned(chet_ned1):
+    if chet_ned1 % 2 == 0:
+        chet1 = "'Четная'"
+    else:
+        chet1 = "'Нечетная'"
+    cursor.execute(f"SELECT * FROM Расписание WHERE НЕДЕЛЯ={(chet1)}")
+    records = list(cursor.fetchall())
+    otv = ''
+    n=0
+    for i in range(len(records)):
+        n+=1
+        if i%5==0:
+            otv+=f'{records[i][2]}\n'
+            n=0
+        otv += f'{n + 1}. {records[i][3:]}\n'
+    return f'{records[0][1]} неделя №{chet_ned} \n{otv}'
+
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    keyboard = types.ReplyKeyboardMarkup()
+    keyboard.row("/week","/help","/mtuci")
+    keyboard.row("Понедельник","Вторник","Среда","Четверг","Пятница")
+    keyboard.row("Расписание на текущую неделю","Расписание на следующую неделю")
+    bot.send_message(message.chat.id,'Привет! Хочешь узнать свежую информацию о МТУСИ?', reply_markup=keyboard)
+
+@bot.message_handler(commands=['week'])
+def start_message(message):
+    if chet_ned % 2 == 0:
+        chet = 'Четная неделя'
+    else:
+        chet = 'Нечетная неделя'
+    bot.send_message(message.chat.id,chet)
+
+@bot.message_handler(commands=['help'])
+def start_message(message):
+    bot.send_message(message.chat.id,"/help - Помощь по доступным командам\n""/week - Чётность текущей недели\n""/mtuci - Ссылка на официальный сайт МТУСИ\n""Нажмите на кнопку нужного дня или недели для вывода расписания")
+
+@bot.message_handler(commands=['mtuci'])
+def start_message(message):
+    bot.send_message(message.chat.id,'https://mtuci.ru/')
+
+@bot.message_handler(content_types=['text'])
+def answer(message):
+    if message.text.lower() =="понедельник" or message.text.lower() =="вторник" or message.text.lower() =="среда" or message.text.lower() =="четверг" or message.text.lower() =="пятница":
+        bot.send_message(message.chat.id, dn_ned(chet_ned, message.text))
+    if message.text.lower() =="расписание на текущую неделю":
+        bot.send_message(message.chat.id, na_ned(chet_ned))
+    if message.text.lower() =="расписание на следующую неделю":
+        bot.send_message(message.chat.id, chet_ned)
+        bot.send_message(message.chat.id, na_ned(1+chet_ned))
+
+bot.polling(none_stop=True)
