@@ -18,7 +18,7 @@ conn = psycopg2.connect(database="mtuci_db",
 cursor = conn.cursor()
 dt_now = datetime.datetime.now()
 ned = str(dt_now)[:str(dt_now).index(' ')].split('-')
-chet_ned = datetime.date(int(ned[0]), int(ned[1]), int(ned[2])).isocalendar().week
+chet_ned = datetime.date(int(ned[0]), int(ned[1]), int(ned[2])).isocalendar().week-34
 
 def dn_ned(chet_ned2, mes):
     if chet_ned2 % 2 == 0:
@@ -32,7 +32,7 @@ def dn_ned(chet_ned2, mes):
         if i % 5 == 0:
             otv += f'{records[i//5][2]}\n'
         otv += f'{i + 1}. {records[i][3:]}\n'
-    return f'{records[0][1]} неделя №{chet_ned} \n{otv}'
+    return f'{records[0][1]} неделя №{chet_ned2} \n{otv}'
 
 def na_ned(chet_ned1):
     if chet_ned1 % 2 == 0:
@@ -49,7 +49,7 @@ def na_ned(chet_ned1):
             otv+=f'{records[i][2]}\n'
             n=0
         otv += f'{n + 1}. {records[i][3:]}\n'
-    return f'{records[0][1]} неделя №{chet_ned} \n{otv}'
+    return f'{records[0][1]} неделя №{chet_ned1} \n{otv}'
 
 
 @bot.message_handler(commands=['start'])
@@ -83,12 +83,21 @@ def answer(message):
     if message.text.lower() =="расписание на текущую неделю":
         bot.send_message(message.chat.id, na_ned(chet_ned))
     if message.text.lower() =="расписание на следующую неделю":
-        bot.send_message(message.chat.id, chet_ned)
         bot.send_message(message.chat.id, na_ned(1+chet_ned))
 
 bot.polling(none_stop=True)
 
-
+CREATE DATABASE mtuci_db;
+CREATE TABLE Расписание
+(
+	id serial PRIMARY KEY,
+	НЕДЕЛЯ varchar(100) NOT NULL,
+	День_недели varchar(100) NOT NULL,
+	Предмет varchar(100) NOT NULL,
+	Кабинет varchar(100) NOT NULL,
+	Время varchar(100) NOT NULL,
+	Преподаватель varchar(100) NOT NULL
+);
 
 INSERT INTO Расписание (НЕДЕЛЯ,День_недели,Предмет,Кабинет,Время,Преподаватель)VALUES('Четная','Понедельник','Физика Лекция','226','09:30-11:05','Карпов И.А.');
 INSERT INTO Расписание (НЕДЕЛЯ,День_недели,Предмет,Кабинет,Время,Преподаватель)VALUES('Четная','Понедельник','Высшая математика Лекция','514','11:20-12:55','Пискарев С.И.');
